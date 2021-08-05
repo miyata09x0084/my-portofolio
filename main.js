@@ -43,7 +43,7 @@
     const y = array[i + 1]
     const z = array[i + 2]
 
-    // array[i + 2] = z + Math.random()
+    array[i + 2] = z + Math.random()
   }
 
   scene.add(planeMesh)
