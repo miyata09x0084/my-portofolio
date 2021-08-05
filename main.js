@@ -14,3 +14,5 @@
 	console.log(scene);
   console.log(camera);
   console.log(renderer);
+
+  document.body.appendChild(renderer.domElement)
