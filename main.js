@@ -4,7 +4,26 @@
   import * as dat from 'dat.gui';
 
   const gui = new dat.GUI()
-  console.log(gui)
+  const world = {
+    plane: {
+      width: 10
+    }
+  }
+  
+  gui.add(world.plane, 'width', 1, 20).onChange(() => {
+    planeMesh.geometry.dispose()
+    planeMesh.geometry = new THREE.PlaneGeometry(world.plane.width, 10, 10, 10)
+
+    const {array} = planeMesh.geometry.attributes.position
+
+    for (let i = 0; i  < array.length; i += 3) {
+      const x = array[i]
+      const y = array[i + 1]
+      const z = array[i + 2]
+
+      array[i + 2] = z + Math.random()
+    }
+  })
 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(
@@ -33,17 +52,6 @@
   const light = new THREE.DirectionalLight(0xffffff, 1)
   light.position.set(0, 0, 1)
   scene.add(light)
-
-  // console.log()
-  const {array} = planeMesh.geometry.attributes.position
-
-  for (let i = 0; i  < array.length; i += 3) {
-    const x = array[i]
-    const y = array[i + 1]
-    const z = array[i + 2]
-
-    array[i + 2] = z + Math.random()
-  }
 
   scene.add(planeMesh)
 
