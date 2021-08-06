@@ -1,25 +1,24 @@
   // Find the latest version by visiting https://cdn.skypack.dev/three.
 
+  import gsap from 'gsap';
   import * as THREE from 'https://cdn.skypack.dev/three@0.126.1';
   import {OrbitControls} from 'https://cdn.skypack.dev/-/three@v0.126.1-LpZka0bKUQ3PqqIzhvFC/dist=es2020,mode=raw/examples/jsm/controls/OrbitControls.js';
-  import * as dat from 'dat.gui';
-
-  console.log(OrbitControls)
+  import * as dat from 'https://cdn.skypack.dev/dat.gui';
 
   const gui = new dat.GUI()
   const world = {
     plane: {
-      width: 10,
-      height: 10,
-      widthSegments: 10,
-      heightSegments: 10,
+      width: 19,
+      height: 19,
+      widthSegments: 17,
+      heightSegments: 17,
     }
   }
 
-  gui.add(world.plane, 'width', 1, 20).onChange(generatePlane)
-  gui.add(world.plane, 'height', 1, 20).onChange(generatePlane)
-  gui.add(world.plane, 'widthSegments', 1, 20).onChange(generatePlane)
-  gui.add(world.plane, 'heightSegments', 1, 20).onChange(generatePlane)
+  gui.add(world.plane, 'width', 1, 50).onChange(generatePlane)
+  gui.add(world.plane, 'height', 1, 50).onChange(generatePlane)
+  gui.add(world.plane, 'widthSegments', 1, 50).onChange(generatePlane)
+  gui.add(world.plane, 'heightSegments', 1, 50).onChange(generatePlane)
 
   function generatePlane() {
     planeMesh.geometry.dispose()
@@ -38,17 +37,27 @@
 
       array[i + 2] = z + Math.random()
     }
+
+    const colors = []
+    for (let i = 0; i < planeMesh.geometry.attributes.position.count; i++) {
+      colors.push(0, 0.19, 0.4)
+    }
+
+    planeMesh.geometry.setAttribute(
+      'color',
+      new THREE.BufferAttribute(new Float32Array(colors), 3)
+    )
   }
 
+  const raycaster = new THREE.Raycaster()
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(
     75,
-    innerWidth/innerHeight,
+    innerWidth / innerHeight,
     0.1,
     1000
   );
-  const renderer = new THREE.WebGLRenderer(
-  )
+  const renderer = new THREE.WebGLRenderer()
 
   renderer.setSize(innerWidth, innerHeight)
   renderer.setPixelRatio(devicePixelRatio)
@@ -57,29 +66,102 @@
   new OrbitControls(camera, renderer.domElement)
   camera.position.z = 5
 
-  const planeGeometry = new THREE.PlaneGeometry(10, 10, 10, 10)
-  console.log(planeGeometry);
+  const planeGeometry = new THREE.PlaneGeometry(
+    world.plane.width,
+    world.plane.height,
+    world.plane.widthSegments,
+    world.plane.heightSegments
+  )
   const planeMaterial = new THREE.MeshPhongMaterial({
-    color: 0xcaca82,
     side: THREE.DoubleSide,
-    flatShading: THREE.FlatShading
+    flatShading: THREE.FlatShading,
+    vertexColors: true
   })
-
   const planeMesh = new THREE.Mesh(planeGeometry, planeMaterial)
+  scene.add(planeMesh)
+  generatePlane()
 
   const light = new THREE.DirectionalLight(0xffffff, 1)
-  light.position.set(0, 0, 1)
+  light.position.set(0, -1, 1)
   scene.add(light)
 
   const backLight = new THREE.DirectionalLight(0xffffff, 1)
   light.position.set(0, 0, -1)
   scene.add(backLight)
 
-  scene.add(planeMesh)
+  const mouse = {
+    x: undefined,
+    y: undefined
+  }
 
   function animate() {
     requestAnimationFrame(animate)
     renderer.render(scene, camera)
+
+    raycaster.setFromCamera(mouse, camera)
+    const intersects = raycaster.intersectObject(planeMesh)
+
+    if (intersects.length > 0) {
+
+      const {color} = intersects[0].object.geometry.attributes
+
+      // vertice 1
+      color.setX(intersects[0].face.a, 0)
+      color.setY(intersects[0].face.a, 0.5)
+      color.setZ(intersects[0].face.a, 1)
+
+      // vertice 2
+      color.setX(intersects[0].face.b, 0)
+      color.setY(intersects[0].face.b, 0.5)
+      color.setZ(intersects[0].face.b, 1)
+
+      // vertice 3
+      color.setX(intersects[0].face.c, 0)
+      color.setY(intersects[0].face.c, 0.5)
+      color.setZ(intersects[0].face.c, 1)
+
+      intersects[0].object.geometry.attributes.color.needsUpdate = true
+
+      const initialColor = {
+        r: 0,
+        g: 0.19,
+        b: 0.4
+      }
+
+      const hoverColor = {
+        r: 0.1,
+        g: 0.5,
+        b: 1
+      }
+
+      gsap.to(hoverColor, {
+        r: initialColor.r,
+        g: initialColor.g,
+        b: initialColor.b,
+        onUpdate: () => {
+          // vertice 1
+          color.setX(intersects[0].face.a, hoverColor.r)
+          color.setY(intersects[0].face.a, hoverColor.g)
+          color.setZ(intersects[0].face.a, hoverColor.b)
+
+          // vertice 2
+          color.setX(intersects[0].face.b, hoverColor.r)
+          color.setY(intersects[0].face.b, hoverColor.g)
+          color.setZ(intersects[0].face.b, hoverColor.b)
+
+          // vertice 3
+          color.setX(intersects[0].face.c, hoverColor.r)
+          color.setY(intersects[0].face.c, hoverColor.g)
+          color.setZ(intersects[0].face.c, hoverColor.b)
+          color.needsUpdate = true
+        }
+      })
+    }
   }
 
   animate()
+
+  addEventListener('mousemove', (event) => {
+    mouse.x = event.clientX / innerWidth * 2 - 1
+    mouse.y = -(event.clientY / innerWidth) * 2 + 1
+  })
