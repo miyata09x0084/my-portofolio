@@ -55,6 +55,7 @@
   renderer.setPixelRatio(devicePixelRatio)
   document.body.appendChild(renderer.domElement)
 
+  new OrbitControls(camera, renderer.domElement)
   camera.position.z = 5
 
   const planeGeometry = new THREE.PlaneGeometry(10, 10, 10, 10)
