@@ -31,7 +31,6 @@
     )
 
     const {array} = planeMesh.geometry.attributes.position
-
     for (let i = 0; i  < array.length; i += 3) {
       const x = array[i]
       const y = array[i + 1]
@@ -65,10 +64,16 @@
     side: THREE.DoubleSide,
     flatShading: THREE.FlatShading
   })
+
   const planeMesh = new THREE.Mesh(planeGeometry, planeMaterial)
+
   const light = new THREE.DirectionalLight(0xffffff, 1)
   light.position.set(0, 0, 1)
   scene.add(light)
+
+  const backLight = new THREE.DirectionalLight(0xffffff, 1)
+  light.position.set(0, 0, -1)
+  scene.add(backLight)
 
   scene.add(planeMesh)
 
