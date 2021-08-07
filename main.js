@@ -1,6 +1,6 @@
   // Find the latest version by visiting https://cdn.skypack.dev/three.
 
-  import gsap from 'gsap';
+  import gsap from 'https://cdn.skypack.dev/gsap';
   import * as THREE from 'https://cdn.skypack.dev/three@0.126.1';
   import {OrbitControls} from 'https://cdn.skypack.dev/-/three@v0.126.1-LpZka0bKUQ3PqqIzhvFC/dist=es2020,mode=raw/examples/jsm/controls/OrbitControls.js';
   import * as dat from 'https://cdn.skypack.dev/dat.gui';
@@ -29,15 +29,29 @@
       world.plane.heightSegments
     )
 
+    //vertice position randomaization
     const {array} = planeMesh.geometry.attributes.position
-    for (let i = 0; i  < array.length; i += 3) {
+    const randomValues = []
+    for (let i = 0; i  < array.length; i++) {
+
+    if (i % 3 === 0) {
       const x = array[i]
       const y = array[i + 1]
       const z = array[i + 2]
 
-      array[i + 2] = z + Math.random()
+      array[i] = x + (Math.random() - 0.5)
+      array[i + 1] = y + (Math.random() - 0.5)
+      array[i + 2] = z + (Math.random() - 0.5)
     }
 
+      randomValues.push(Math.random())
+    }
+
+    planeMesh.geometry.attributes.position.randomValues = randomValues
+    planeMesh.geometry.attributes.position.originalPosition =
+    planeMesh.geometry.attributes.position.array
+
+    //color attribute addition
     const colors = []
     for (let i = 0; i < planeMesh.geometry.attributes.position.count; i++) {
       colors.push(0, 0.19, 0.4)
@@ -86,7 +100,7 @@
   scene.add(light)
 
   const backLight = new THREE.DirectionalLight(0xffffff, 1)
-  light.position.set(0, 0, -1)
+  backLight.position.set(0, 0, -1)
   scene.add(backLight)
 
   const mouse = {
@@ -94,11 +108,27 @@
     y: undefined
   }
 
+  let frame = 0
   function animate() {
     requestAnimationFrame(animate)
     renderer.render(scene, camera)
-
     raycaster.setFromCamera(mouse, camera)
+    frame += 0.01
+
+    const {
+      array,
+      originalPosition,
+      randomValues
+    } = planeMesh.geometry.attributes.position
+    for (let i = 0; i < array.length; i += 3) {
+      // x
+      array[i] = originalPosition[i] + Math.cos(frame + randomValues[i]) * 0.0031
+      //y
+      array[i + 1] = originalPosition[i + 1] + Math.sin(frame + randomValues[i + 1]) * 0.0031
+    }
+
+    planeMesh.geometry.attributes.position.needsUpdate = true
+
     const intersects = raycaster.intersectObject(planeMesh)
 
     if (intersects.length > 0) {
