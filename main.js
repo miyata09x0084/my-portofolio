@@ -8,10 +8,10 @@
   const gui = new dat.GUI()
   const world = {
     plane: {
-      width: 19,
-      height: 19,
-      widthSegments: 17,
-      heightSegments: 17,
+      width: 400,
+      height: 400,
+      widthSegments: 50,
+      heightSegments: 50,
     }
   }
 
@@ -78,7 +78,7 @@
   document.body.appendChild(renderer.domElement)
 
   new OrbitControls(camera, renderer.domElement)
-  camera.position.z = 5
+  camera.position.z = 50
 
   const planeGeometry = new THREE.PlaneGeometry(
     world.plane.width,
