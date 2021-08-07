@@ -15,10 +15,10 @@
     }
   }
 
-  gui.add(world.plane, 'width', 1, 50).onChange(generatePlane)
-  gui.add(world.plane, 'height', 1, 50).onChange(generatePlane)
-  gui.add(world.plane, 'widthSegments', 1, 50).onChange(generatePlane)
-  gui.add(world.plane, 'heightSegments', 1, 50).onChange(generatePlane)
+  gui.add(world.plane, 'width', 1, 500).onChange(generatePlane)
+  gui.add(world.plane, 'height', 1, 500).onChange(generatePlane)
+  gui.add(world.plane, 'widthSegments', 1, 100).onChange(generatePlane)
+  gui.add(world.plane, 'heightSegments', 1, 100).onChange(generatePlane)
 
   function generatePlane() {
     planeMesh.geometry.dispose()
@@ -39,9 +39,9 @@
       const y = array[i + 1]
       const z = array[i + 2]
 
-      array[i] = x + (Math.random() - 0.5)
-      array[i + 1] = y + (Math.random() - 0.5)
-      array[i + 2] = z + (Math.random() - 0.5)
+      array[i] = x + (Math.random() - 0.5) * 10
+      array[i + 1] = y + (Math.random() - 0.5) * 1000000
+      array[i + 2] = z + (Math.random() - 0.5) * 30
     }
 
       randomValues.push(Math.random())
@@ -78,7 +78,7 @@
   document.body.appendChild(renderer.domElement)
 
   new OrbitControls(camera, renderer.domElement)
-  camera.position.z = 50
+  camera.position.z = 500
 
   const planeGeometry = new THREE.PlaneGeometry(
     world.plane.width,
@@ -96,11 +96,11 @@
   generatePlane()
 
   const light = new THREE.DirectionalLight(0xffffff, 1)
-  light.position.set(0, -1, 1)
+  light.position.set(0, 0, 1)
   scene.add(light)
 
-  const backLight = new THREE.DirectionalLight(0xffffff, 1)
-  backLight.position.set(0, 0, -1)
+  const backLight = new THREE.DirectionalLight(0xffffff, 1, 0, 0, 10000, 100)
+  backLight.position.set(1, 0, -1)
   scene.add(backLight)
 
   const mouse = {
